@@ -22,6 +22,12 @@ router.get("/", (req, res) => {
 
 //find one group
 router.get("/:id", (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to create a group!" });
+  }
   Group.findByPk(req.params.id, { include: [User, Game] })
     .then((allGroups) => {
       res.json(allGroups);
@@ -54,14 +60,13 @@ router.post("/", (req, res) => {
     )
       .then((newGroup) => {
         //todo:Assuming the req.body:  bodyOBJ = {users:[]}
-        const userGroup = [];
-        const groupMembers = req.body.users.map((member) =>
-          userGroup.push({
+        const groupMembers = req.body.users.map((member) =>{
+          return {
             GroupId: newGroup.id,
             UserId: member,
-          })
-        );
-        Usergroup.bulkcreate(userGroup)
+          } 
+      });
+        Usergroup.bulkcreate(groupMembers)
           .then((addMember) => {
             res.json(addMember);
           })

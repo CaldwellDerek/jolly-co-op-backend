@@ -5,6 +5,7 @@ const Nomination = require("./Nomination")
 const Vote = require('./Vote')
 const Usergroup = require('./Usergroup')
 const Usergame = require('./Usergame')
+const Gamegroup = require('./Gamegroup')
 
 User.belongsToMany(Game,{
     through:Usergame,
@@ -34,7 +35,9 @@ Group.belongsToMany(User,{
     through:Usergroup
 });
 
-Group.hasMany(Game,{
+
+Group.belongsToMany(Game,{
+    through:Gamegroup
 });
 
 Group.hasMany(Nomination,{
@@ -42,6 +45,11 @@ Group.hasMany(Nomination,{
 
 Game.belongsToMany(User,{
     through:Usergame,
+});
+
+
+Game.belongsToMany(Group,{
+    through:Gamegroup,
 });
 
 Nomination.belongsTo(User,{
