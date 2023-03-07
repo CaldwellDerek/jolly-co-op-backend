@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { User, Group, Game, Usergroup} = require("../models");
+const { User, Group, Game, Usergroup } = require("../models");
 const jwt = require("jsonwebtoken");
 
 // sign up

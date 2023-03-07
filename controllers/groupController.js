@@ -53,14 +53,15 @@ router.post("/", (req, res) => {
       { include: [User, Game] }
     )
       .then((newGroup) => {
+        //todo:Assuming the req.body:  bodyOBJ = {users:[]}
         const userGroup = [];
-        const groupMembers = req.body.user.map((member) =>
+        const groupMembers = req.body.users.map((member) =>
           userGroup.push({
             GroupId: newGroup.id,
             UserId: member,
           })
         );
-        Usergroup.bulkcreate(groupMembers)
+        Usergroup.bulkcreate(userGroup)
           .then((addMember) => {
             res.json(addMember);
           })
@@ -129,52 +130,52 @@ router.put("/:groupId", (req, res) => {
   }
 });
 
-// delete one PROTECTED
-router.delete("/:playId", (req, res) => {
-  const token = req.headers?.authorization?.split(" ")[1];
-  if (!token) {
-    return res
-      .status(403)
-      .json({ msg: "you must be logged in to delete a play!" });
-  }
-  try {
-    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-    Play.findByPk(req.params.playId)
-      .then((foundPlay) => {
-        if (!foundPlay) {
-          return res.status(404).json({ msg: "no such play!" });
-        }
-        if (foundPlay.UserId !== tokenData.id) {
-          return res
-            .status(403)
-            .json({ msg: "you can only delete plays you created!" });
-        }
-        Play.destroy({
-          where: {
-            id: req.params.playId,
-          },
-        })
-          .then((delPlay) => {
-            res.json(delPlay);
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(500).json({
-              msg: "womp womp womp",
-              err,
-            });
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).json({
-          msg: "womp womp womp",
-          err,
-        });
-      });
-  } catch (err) {
-    return res.status(403).json({ msg: "invalid token" });
-  }
-});
+// // delete one PROTECTED
+// router.delete("/:playId", (req, res) => {
+//   const token = req.headers?.authorization?.split(" ")[1];
+//   if (!token) {
+//     return res
+//       .status(403)
+//       .json({ msg: "you must be logged in to delete a play!" });
+//   }
+//   try {
+//     const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+//     Play.findByPk(req.params.playId)
+//       .then((foundPlay) => {
+//         if (!foundPlay) {
+//           return res.status(404).json({ msg: "no such play!" });
+//         }
+//         if (foundPlay.UserId !== tokenData.id) {
+//           return res
+//             .status(403)
+//             .json({ msg: "you can only delete plays you created!" });
+//         }
+//         Play.destroy({
+//           where: {
+//             id: req.params.playId,
+//           },
+//         })
+//           .then((delPlay) => {
+//             res.json(delPlay);
+//           })
+//           .catch((err) => {
+//             console.log(err);
+//             res.status(500).json({
+//               msg: "womp womp womp",
+//               err,
+//             });
+//           });
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//         res.status(500).json({
+//           msg: "womp womp womp",
+//           err,
+//         });
+//       });
+//   } catch (err) {
+//     return res.status(403).json({ msg: "invalid token" });
+//   }
+// });
 
 module.exports = router;
