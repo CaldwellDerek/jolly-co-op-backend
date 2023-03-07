@@ -3,19 +3,22 @@ const Group = require("./Group");
 const Game = require("./Game")
 const Nomination = require("./Nomination")
 const Vote = require('./Vote')
+const Usergroup = require('./Usergroup')
+const Usergame = require('./Usergame')
 
-User.hasMany(Game,{
+User.belongsToMany(Game,{
+    through:Usergame,
     onDelete:"CASCADE"
 });
 
 User.belongsToMany(Group,{
-    through:'UserGroup',
-    onDelete:"CASCADE"
+    through:Usergroup,
+    onDelete:"CASCADE",
 });
 
-User.hasMany(Group,{
-    throught:'Owner'
-})
+// User.belongsToMany(Group,{
+//     through:'Owner', foreignKey:"OwnerGroup"
+// })
 
 User.hasMany(Nomination,{
 })
@@ -23,12 +26,12 @@ User.hasMany(Nomination,{
 User.hasMany(Vote,{
 })
 
-Group.hasOne(User,{
-    through:'Owner'
+Group.belongsTo(User,{
+    as:'Owner'
 })
 
 Group.belongsToMany(User,{
-    through:'UserGroup'
+    through:Usergroup
 });
 
 Group.hasMany(Game,{
@@ -37,7 +40,8 @@ Group.hasMany(Game,{
 Group.hasMany(Nomination,{
 });
 
-Game.hasMany(Nomination,{
+Game.belongsToMany(User,{
+    through:Usergame,
 });
 
 Nomination.belongsTo(User,{
@@ -63,5 +67,7 @@ module.exports={
     Group,
     Game,
     Vote,
-    Nomination
+    Nomination,
+    Usergroup,
+    Usergame
 }

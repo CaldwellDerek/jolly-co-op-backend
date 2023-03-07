@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { User, Group, Game } = require("../models");
+const { User, Group, Game, Usergroup} = require("../models");
 const jwt = require("jsonwebtoken");
 
 // sign up
 router.post("/signup", (req, res) => {
   User.create({
     username: req.body.username,
-    password: req.body.password,
     email: req.body.email,
-  })
+    password: req.body.password,
+    },{inlude:[Group,Game] })
     .then((newUser) => {
       const token = jwt.sign(
         {
@@ -118,5 +118,23 @@ router.get("/:id", (req, res) => {
       res.json({ msg: "oh no", err });
     });
 });
+
+router.post("/:userId",(req,res)=>{
+  Usergroup.create(  {  
+    UserId:req.params.userId,
+    GroupId:req.body.groupId
+    },
+    {
+      where: {
+        id: req.params.userId,
+      },
+    } ) .then((userData) => {
+      res.json(userData);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ msg: "oh no", err });
+    });
+})
 
 module.exports = router;
