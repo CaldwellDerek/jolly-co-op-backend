@@ -1,51 +1,56 @@
-// const sequelize = require("../config/connection");
-// const { User, Play } = require("../models");
+const sequelize = require("../config/connection");
+const { User, Group } = require("../models");
 
-// const users = [
-//   {
-//     email: "joe@joe.joe",
-//     password: "password",
-//     username: "joejoe",
-//   },
-//   {
-//     email: "arra@arra.arra",
-//     password: "password1",
-//     username: "arra",
-//   },
-//   {
-//     email: "shiva@cat.gov",
-//     password: "password1!",
-//     username: "theCat",
-//   },
-// ];
+const users = [
+  {
+    email: "yanqinglou@outlook.com",
+    password: "password",
+    username: "yanqing",
+  },
+  {
+    email: "lily@lily.gmail",
+    password: "password",
+    username: "password",
+  },
+  {
+    email: "amy@amy.gmail",
+    password: "password",
+    username: "amy",
+  },
+  {
+    email: "jody@jody.gmail",
+    password: "password",
+    username: "jody",
+  },
+  {
+    email: "emma@emma.gmail",
+    password: "password",
+    username: "emma",
+  },
+];
 
-// const plays = [
-//   {
-//     title: "The Isle Of Cats",
-//     date: new Date("2/28/2023"),
-//     isWin: false,
-//     score: 20,
-//     notes:
-//       "The red cats covered almost all the rats but I didnt fill the rooms. womp womp.",
-//     UserId: 1,
-//   },
-//   {
-//     title: "Concordia",
-//     date: new Date("12/30/2022"),
-//     isWin: true,
-//     score: 110,
-//     notes: "I am the best wine trader in all of the Mediteranan!",
-//     UserId: 1,
-//   },
-// ];
+const groups = [
+  {
+    name: "1st jolly group",
+    OwnerId: 1,
+  },
+  {
+    name: "2nd best group",
+    OwnerId: 2,
+  },
+  {
+    name: "3nd funniest group",
+    OwnerId: 3,
+  },
+];
 
-// const seedMe = async () => {
-//   await sequelize.sync({ force: true });
-//   const seeedUsers = await User.bulkCreate(users, {
-//     individualHooks: true,
-//   });
-//   const seededPlays = await Play.bulkCreate(plays);
-//   process.exit(0);
-// };
+const seedMe = async () => {
+  await sequelize.sync({ force: true });
+  const seeedUsers = await User.bulkCreate(users, {
+    individualHooks: true,
+  });
+  const seededPlays = await Group.bulkCreate(groups);
+  process.exit(0);
+};
 
-// seedMe();
+seedMe();

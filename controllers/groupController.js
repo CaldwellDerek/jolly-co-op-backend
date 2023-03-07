@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const { Game, User } = require("../models");
+const { Game, User, Group, Usergroup } = require("../models");
 const jwt = require("jsonwebtoken");
 
 //find all group
 router.get("/", (req, res) => {
   Group.findAll({
-    include: [User],
+    include: [User, Game],
   })
     .then((allGroups) => {
       res.json(allGroups);
@@ -19,11 +19,10 @@ router.get("/", (req, res) => {
       });
     });
 });
+
 //find one group
 router.get("/:id", (req, res) => {
-  Group.findByPk({
-    include: [User,Game],
-  })
+  Group.findByPk(req.params.id, { include: [User, Game] })
     .then((allGroups) => {
       res.json(allGroups);
     })
@@ -35,7 +34,8 @@ router.get("/:id", (req, res) => {
       });
     });
 });
-// create a group
+
+// create a group without members
 router.post("/", (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
   if (!token) {
@@ -44,13 +44,33 @@ router.post("/", (req, res) => {
       .json({ msg: "you must be logged in to create a group!" });
   }
   try {
-    Group.create({
-      name: req.body.name,
-      OwnerId:req.body.OwnerId,
-      UserId: req.body.users
-    })
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+    Group.create(
+      {
+        name: req.body.name,
+        OwnerId: tokenData.id,
+      },
+      { include: [User, Game] }
+    )
       .then((newGroup) => {
-        res.json(newGroup);
+        const userGroup = [];
+        const groupMembers = req.body.user.map((member) =>
+          userGroup.push({
+            GroupId: newGroup.id,
+            UserId: member,
+          })
+        );
+        Usergroup.bulkcreate(groupMembers)
+          .then((addMember) => {
+            res.json(addMember);
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).json({
+              msg: "womp womp womp",
+              err,
+            });
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -64,45 +84,50 @@ router.post("/", (req, res) => {
   }
 });
 
-// // edit one PROTECTED
-// router.put("/:groupId", (req, res) => {
-//   const token = req.headers?.authorization?.split(" ")[1];
-//   if (!token) {
-//     return res
-//       .status(403)
-//       .json({ msg: "you must be logged in to edit a play!" });
-//   }
-//   try {
-//     const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-//     Group.findByPk(req.params.groupId)
-//       .then((foundGroup) => {
-//         Group.update(
-//           {
-// name:
-//           } 
-//         )
-//           .then((delPlay) => {
-//             res.json(delPlay);
-//           })
-//           .catch((err) => {
-//             console.log(err);
-//             res.status(500).json({
-//               msg: "womp womp womp",
-//               err,
-//             });
-//           });
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//         res.status(500).json({
-//           msg: "womp womp womp",
-//           err,
-//         });
-//       });
-//   } catch (err) {
-//     return res.status(403).json({ msg: "invalid token" });
-//   }
-// });
+// edit one PROTECTED to add users
+router.put("/:groupId", (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to edit a play!" });
+  }
+  try {
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+    Usergroup.findByPk(req.params.groupId)
+      .then((foundGroup) => {
+        Group.update(
+          {
+            UserId: req.body.UserId,
+          },
+          {
+            where: {
+              id: req.params.groupId,
+            },
+          }
+        )
+          .then((delPlay) => {
+            res.json(delPlay);
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).json({
+              msg: "womp womp womp",
+              err,
+            });
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          msg: "womp womp womp",
+          err,
+        });
+      });
+  } catch (err) {
+    return res.status(403).json({ msg: "invalid token" });
+  }
+});
 
 // delete one PROTECTED
 router.delete("/:playId", (req, res) => {
