@@ -19,6 +19,7 @@ router.get("/", (req, res) => {
       });
     });
 });
+
 //find one group
 router.get("/:id", (req, res) => {
   Group.findByPk({
@@ -35,19 +36,18 @@ router.get("/:id", (req, res) => {
       });
     });
 });
+
 // create a group
 router.post("/", (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
   if (!token) {
-    return res
-      .status(403)
-      .json({ msg: "you must be logged in to create a group!" });
+    return res.status(403).json({ msg: "you must be logged in to create a group!" });
   }
   try {
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
     Group.create({
       name: req.body.name,
-      OwnerId:req.body.OwnerId,
-      UserId: req.body.users
+      OwnerId:tokenData.id
     })
       .then((newGroup) => {
         res.json(newGroup);
@@ -58,7 +58,7 @@ router.post("/", (req, res) => {
           msg: "womp womp womp",
           err,
         });
-      });
+      }); 
   } catch (err) {
     return res.status(403).json({ msg: "invalid token" });
   }

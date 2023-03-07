@@ -13,7 +13,7 @@ User.belongsToMany(Group,{
     onDelete:"CASCADE"
 });
 
-User.belongsTo(Group,{
+User.hasMany(Group,{
     throught:'Owner'
 })
 

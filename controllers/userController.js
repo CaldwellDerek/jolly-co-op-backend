@@ -4,8 +4,8 @@ const bcrypt = require("bcrypt");
 const { User, Group, Game } = require("../models");
 const jwt = require("jsonwebtoken");
 
-// signup
-router.post("/", (req, res) => {
+// sign up
+router.post("/signup", (req, res) => {
   User.create({
     username: req.body.username,
     password: req.body.password,
@@ -91,6 +91,20 @@ router.get("/isValidToken", (req, res) => {
     });
   }
 });
+//get all users
+router.get("/", (req, res) => {
+  User.findAll( {
+    include: [Group,Game],
+  })
+    .then((userData) => {
+      res.json(userData);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ msg: "oh no", err });
+    });
+});
+
 // get one with plays and include groups
 router.get("/:id", (req, res) => {
   User.findByPk(req.params.id, {
