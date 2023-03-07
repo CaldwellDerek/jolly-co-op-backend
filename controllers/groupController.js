@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Game, User } = require("../models");
+const { Game, User, Group } = require("../models");
 const jwt = require("jsonwebtoken");
 
 //find all group
