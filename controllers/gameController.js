@@ -31,16 +31,24 @@ router.put("/", async(req, res) => {
   }
   try {
     const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-    const newGame = await Game.create({
-      name: req.body.name,
-      platforms: req.body.platforms,
-      rating: req.body.rating,
-      genres: req.body.genres,
-    })
-    //* only add userid here, game is not in any group
+    const gameSearch = await Game.findOne({where:{name:req.body.name}})
     const newUser = await User.findByPk(tokenData.id)
-    const newUserGame = await newGame.addUser(newUser)
-    res.json(newUserGame)
+    //*find game in the current game table. if the game exists, add user to the game; if not, create a new game
+    if (gameSearch){
+      const addGametoUser = await gameSearch.addUser(newUser)
+      res.json(addGametoUser)
+    }else {
+      const newGame = await Game.create({
+        name: req.body.name,
+        platforms: req.body.platforms,
+        rating: req.body.rating,
+        genres: req.body.genres,
+      })
+      //* only add userid here, game is not in any group
+      const newUserGame = await newGame.addUser(newUser)
+      res.json(newUserGame)
+    }
+
   } catch (err) {
     return res.status(403).json({ msg: "invalid token" });
   }
