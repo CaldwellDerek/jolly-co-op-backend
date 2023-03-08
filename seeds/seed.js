@@ -1,5 +1,5 @@
 const sequelize = require("../config/connection");
-const { User, Group } = require("../models");
+const { User, Group, Game } = require("../models");
 
 const users = [
   {
@@ -44,12 +44,34 @@ const groups = [
   },
 ];
 
+const games = [
+  {
+    name: "Super Mario",
+    platforms: "Nitendo PC Playstation",
+    rating:4,
+    genres:"action"
+  },
+  {
+    name: "Sims4",
+    platforms: "PC Playstation",
+    rating:4,
+    genres:"family"
+  },
+  {
+    name: "League of the Legend",
+    platforms: "PC Playstation",
+    rating:5,
+    genres:"war action"
+  }
+];
+
 const seedMe = async () => {
   await sequelize.sync({ force: true });
   const seeedUsers = await User.bulkCreate(users, {
     individualHooks: true,
   });
   const seededPlays = await Group.bulkCreate(groups);
+  const seededgGames = await Game.bulkCreate(games);
   process.exit(0);
 };
 

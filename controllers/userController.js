@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { User, Group, Game, Usergroup} = require("../models");
+const { User, Group, Game, Usergroup } = require("../models");
 const jwt = require("jsonwebtoken");
 
 // sign up
@@ -107,6 +107,12 @@ router.get("/", (req, res) => {
 
 // get one with plays and include groups
 router.get("/:id", (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ isValid: false, msg: "you must be logged in to create a play!" });
+  }
   User.findByPk(req.params.id, {
     include: [Group,Game],
   })
@@ -119,22 +125,24 @@ router.get("/:id", (req, res) => {
     });
 });
 
-router.post("/:userId",(req,res)=>{
-  Usergroup.create(  {  
-    UserId:req.params.userId,
-    GroupId:req.body.groupId
-    },
-    {
-      where: {
-        id: req.params.userId,
-      },
-    } ) .then((userData) => {
-      res.json(userData);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json({ msg: "oh no", err });
-    });
-})
+
+
+// router.post("/:userId",(req,res)=>{
+//   Usergroup.create(  {  
+//     UserId:req.params.userId,
+//     GroupId:req.body.groupId
+//     },
+//     {
+//       where: {
+//         id: req.params.userId,
+//       },
+//     } ) .then((userData) => {
+//       res.json(userData);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.json({ msg: "oh no", err });
+//     });
+// })
 
 module.exports = router;
