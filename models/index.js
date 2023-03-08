@@ -17,12 +17,8 @@ User.belongsToMany(Group,{
     onDelete:"CASCADE",
 });
 
-
-
-// User.hasMany(Nomination,{
-// })
-
 User.hasMany(Vote,{
+    onDelete:"CASCADE"
 })
 
 // User.hasMany(Group,{
@@ -42,6 +38,7 @@ Group.belongsToMany(Game,{
 });
 
 Group.hasMany(Vote,{
+    onDelete:"CASCADE"
 })
 
 // Group.hasMany(Nomination,{
@@ -56,19 +53,9 @@ Game.belongsToMany(Group,{
     through:Gamegroup,
 });
 
-Game.hasMany(Vote,{})
-
-// Nomination.belongsTo(User,{
-// });
-
-// Nomination.belongsTo(Group,{
-// });
-
-// Nomination.belongsTo(Game,{
-// });
-
-// Nomination.hasMany(Vote,{
-// })
+Game.hasMany(Vote,{
+    onDelete:"CASCADE"
+})
 
 Vote.belongsTo(User,{
 })
@@ -76,7 +63,7 @@ Vote.belongsTo(User,{
 Vote.belongsTo(Group,{
 })
 
-Vote.belongsTo(Group,{
+Vote.belongsTo(Game,{
 })
 
 module.exports={
@@ -84,7 +71,6 @@ module.exports={
     Group,
     Game,
     Vote,
-    Nomination,
     Usergroup,
     Usergame
 }
