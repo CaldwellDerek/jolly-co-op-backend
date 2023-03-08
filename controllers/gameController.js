@@ -61,6 +61,7 @@ router.put("/", async (req, res) => {
         platforms: req.body.platforms,
         rating: req.body.rating,
         genres: req.body.genres,
+        imgURL: req.body.imgURL
       });
       //* only add userid here, game is not in any group
       const newUserGame = await newGame.addUser(newUser);
