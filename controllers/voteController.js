@@ -76,14 +76,17 @@ router.put("/group/:groupid", async (req, res) => {
     console.log(usersVote.length);
     if (usersVote.length == 2) {
       return res.json({ msg: "you have voted for anothere game!" });
-    } else {
+    }
+    //check if the users have voted for the same game
+    if (usersVote.GameId === req.body.GameId){
+      return res.json({msg:"you have voted for this game already!"})
+    }
       const newVote = await Vote.create({
         UserId: tokenData.id,
         GroupId: req.params.groupid,
         GameId: req.body.GameId,
       });
       res.json(newVote);
-    }
   } catch (err) {
     console.log(err);
     return res.json(err);
@@ -91,7 +94,7 @@ router.put("/group/:groupid", async (req, res) => {
 });
 
 //delete a vote
-router.delete("/", async (req, res) => {
+router.delete("/:groupid", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
   const tokenData = jwt.verify(token, process.env.JWT_SECRET);
   if (!token) {

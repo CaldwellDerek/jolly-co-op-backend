@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { User, Group, Game } = require("../models");
+const { User, Group, Game, Usergame } = require("../models");
 const jwt = require("jsonwebtoken");
 
 //find all games
@@ -21,40 +21,14 @@ router.get("/", (req, res) => {
     });
 });
 
-// add/create a Game into user's list
-router.put("/", async(req, res) => {
+// get one with gameid
+router.get("/:id", (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
   if (!token) {
     return res
       .status(403)
-      .json({ msg: "you must be logged in to create a group!" });
+      .json({ msg: "you must be logged in to edit a play!" });
   }
-  try {
-    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-    const gameSearch = await Game.findOne({where:{name:req.body.name}})
-    const newUser = await User.findByPk(tokenData.id)
-    //*find game in the current game table. if the game exists, add user to the game; if not, create a new game
-    if (gameSearch){
-      const addGametoUser = await gameSearch.addUser(newUser)
-      res.json(addGametoUser)
-    }else {
-      const newGame = await Game.create({
-        name: req.body.name,
-        platforms: req.body.platforms,
-        rating: req.body.rating,
-        genres: req.body.genres,
-      })
-      //* only add userid here, game is not in any group
-      const newUserGame = await newGame.addUser(newUser)
-      res.json(newUserGame)
-    }
-  } catch (err) {
-    return res.status(403).json({ msg: "invalid token" });
-  }
-});
-
-// get one with gameid
-router.get("/:id", (req, res) => {
   Game.findByPk(req.params.id, {})
     .then((gameData) => {
       res.json(gameData);
@@ -65,8 +39,40 @@ router.get("/:id", (req, res) => {
     });
 });
 
+// add/create a Game into user's list
+router.put("/", async (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to create a group!" });
+  }
+  try {
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+    const gameSearch = await Game.findOne({ where: { name: req.body.name } });
+    const newUser = await User.findByPk(tokenData.id);
+    //*find game in the current game table. if the game exists, add user to the game; if not, create a new game
+    if (gameSearch) {
+      const addGametoUser = await gameSearch.addUser(newUser);
+      res.json(addGametoUser);
+    } else {
+      const newGame = await Game.create({
+        name: req.body.name,
+        platforms: req.body.platforms,
+        rating: req.body.rating,
+        genres: req.body.genres,
+      });
+      //* only add userid here, game is not in any group
+      const newUserGame = await newGame.addUser(newUser);
+      res.json(newUserGame);
+    }
+  } catch (err) {
+    return res.status(403).json({ msg: "invalid token" });
+  }
+});
+
 //add game to a group
-router.put("/:gameid/:groupid", async(req, res) => {
+router.put("/:gameid/:groupid", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
   if (!token) {
     return res
@@ -75,12 +81,18 @@ router.put("/:gameid/:groupid", async(req, res) => {
   }
   try {
     const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-    const foundGroup = await  Group.findByPk(req.params.groupid)
-    const foundGame = await Game.findByPk(req.params.gameid)
-    const addGame = await foundGroup.addGame(foundGame)
-    res.json(addGame)
+    const foundGroup = await Group.findByPk(req.params.groupid,{include:[User,Game]});
+    const foundGame = await Game.findByPk(req.params.gameid);
+    // if(foundGroup.Users.includes()){
+    //   return res.status(403).json({msg:'you are not a member of this group'})
+    // }
+    // if(foundGroup.Games.includes(req.params.gameid)){
+    //   return res.json({msg:'This game has been added to the group'})
+    // }
+    const addGame = await foundGroup.addGame(foundGame);
+    res.json(addGame);
   } catch (err) {
-    return res.status(403).json({ msg: "invalid token" });
+    return res.json(err);
   }
 });
 
@@ -102,7 +114,7 @@ router.delete("/:id", (req, res) => {
         if (foundGame.UserId !== tokenData.id) {
           return res
             .status(403)
-            .json({ msg: "you can only delete plays you created!" });
+            .json({ msg: "you can only delete games you created!" });
         }
         Game.destroy({
           where: {

@@ -62,21 +62,16 @@ router.post("/", async (req, res) => {
     //todo:Assuming the req.body:  bodyOBJ = {userid, userid, userid}
     const groupOwner = await User.findByPk(tokenData.id);
     const usersArray = await JSON.parse(req.body.users);
-    const usersFound = usersArray.map(async(user)=>{
-      const workingObj = await User.findByPk(user);
-      return workingObj
-    })
+    // const usersFound = usersArray.map(async(user)=>{
+    //   const workingObj = await User.findByPk(user);
+    //   return workingObj
+    // })
+    // console.log(usersFound)
+    // console.log("------------------")
+    //  console.log(usersArray)
+    await usersArray.push(tokenData.id)
     const addMembers = await createGroup.addUsers(usersArray);
     res.json(addMembers);
-    //  const groupMembers= usersArray.map(member => {
-    //      return ({
-    //       GroupId: newGroup.id,
-    //       UserId: member
-    //     });
-    //   });
-
-    //   console.log(groupMembers)
-    //   const addMember = Usergroup.bulkCreate(groupMembers)
   } catch (err) {
     console.log(err);
     return res.status(403).json(err);
@@ -93,20 +88,19 @@ router.put("/:groupId", async (req, res) => {
       .status(403)
       .json({ msg: "you must be logged in to edit a play!" });
   }
-  if (tokenData.id !== parseInt(findGroup.Owner)) {
+  if (tokenData.id !== parseInt(findGroup.OwnerId)) {
     return res
       .status(403)
       .json({ msg: "You are not the owner of this group" });}
   try {
       const usersArray = await JSON.parse(req.body.users);
-      const usersFound = usersArray.map(async(user)=>{
-        const workingObj = await User.findByPk(user);
-        return workingObj
-      })
+      // const usersFound = usersArray.map(async(user)=>{
+      //   const workingObj = await User.findByPk(user);
+      //   return workingObj
+      // })
       const addMembers = await findGroup.addUsers(usersArray);
       res.json(addMembers);
     }
-
    catch (err) {
     console.log(err);
     return res.status(403).json({ msg: "invalid token" });
@@ -136,10 +130,8 @@ router.delete("/:groupid", async(req, res) => {
           where: {
             id: req.params.groupid
           },
-        }) .catch((err) => {
-          console.log(err);
-          res.status(500).json(err)})
-    res.json(delPlay);
+        }) 
+    res.json(delGroup);
   } catch (err) {
     return res.status(403).json({ msg: "invalid token" });
   }

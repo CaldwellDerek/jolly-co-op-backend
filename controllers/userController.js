@@ -125,8 +125,6 @@ router.get("/:id", (req, res) => {
     });
 });
 
-
-
 // router.post("/:userId",(req,res)=>{
 //   Usergroup.create(  {  
 //     UserId:req.params.userId,
