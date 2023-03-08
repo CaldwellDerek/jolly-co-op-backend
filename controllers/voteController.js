@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { User,Group,Game,Nomination,Vote} = require("../models");
+const { User,Group,Game,Vote} = require("../models");
 const jwt = require("jsonwebtoken");
 
 //find all nomination
 router.get("/", (req, res) => {
-  Nomination.findAll({
-    include: [User,Group,Game,Vote],
+  Vote.findAll({
+    include: [User,Group,Game],
   })
     .then((allNomination) => {
       res.json(allNomination);
@@ -20,5 +20,9 @@ router.get("/", (req, res) => {
       });
     });
 });
+
+router.put("/",(req, res)=>{
+  Vote.create
+})
 
 module.exports = router;

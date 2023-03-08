@@ -21,7 +21,7 @@ router.get("/", (req, res) => {
     });
 });
 
-// create a Game and add into user's list
+// add/create a Game into user's list
 router.put("/", async(req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
   if (!token) {
@@ -48,7 +48,6 @@ router.put("/", async(req, res) => {
       const newUserGame = await newGame.addUser(newUser)
       res.json(newUserGame)
     }
-
   } catch (err) {
     return res.status(403).json({ msg: "invalid token" });
   }
