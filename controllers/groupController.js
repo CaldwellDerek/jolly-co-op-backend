@@ -93,7 +93,7 @@ router.put("/:groupId", async (req, res) => {
       .status(403)
       .json({ msg: "you must be logged in to edit a play!" });
   }
-  if (tokenData.id !== parseInt(findGroup.OwnerId)) {
+  if (tokenData.id !== parseInt(findGroup.Owner)) {
     return res
       .status(403)
       .json({ msg: "You are not the owner of this group" });}
