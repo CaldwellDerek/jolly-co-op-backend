@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { User, Group, Game, Usergame } = require("../models");
+const { User, Group, Game, Usergame, Vote } = require("../models");
 const jwt = require("jsonwebtoken");
 
 //find all games
@@ -29,7 +29,7 @@ router.get("/:id", (req, res) => {
       .status(403)
       .json({ msg: "you must be logged in to edit a play!" });
   }
-  Game.findByPk(req.params.id, {})
+  Game.findByPk(req.params.id, {include:[Vote]})
     .then((gameData) => {
       res.json(gameData);
     })
@@ -38,6 +38,7 @@ router.get("/:id", (req, res) => {
       res.json({ msg: "oh no", err });
     });
 });
+
 
 // add/create a Game into user's list
 router.put("/", async (req, res) => {

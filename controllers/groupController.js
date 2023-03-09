@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Game, User, Group, Usergroup } = require("../models");
+const { Game, User, Group, Usergroup, Vote } = require("../models");
 const jwt = require("jsonwebtoken");
 const { afterBulkSync } = require("../models/User");
 
@@ -27,9 +27,10 @@ router.get("/:id", (req, res) => {
   if (!token) {
     return res
       .status(403)
-      .json({ msg: "you must be logged in to create a group!" });
+      .json({ msg: "you must be logged in to find a group!" });
   }
-  Group.findByPk(req.params.id, { include: [User, Game] })
+  try{
+    Group.findByPk(req.params.id, { include: [User, Game, Vote] })
     .then((allGroups) => {
       res.json(allGroups);
     })
@@ -38,8 +39,13 @@ router.get("/:id", (req, res) => {
       res.status(500).json({
         msg: "womp womp womp",
         err,
-      });
+      })
     });
+  }catch (err) {
+    console.log(err);
+    return res.status(403).json(err);
+  }
+
 });
 
 // create a group and then add in users

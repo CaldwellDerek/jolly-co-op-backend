@@ -24,7 +24,6 @@ router.get("/", (req, res) => {
 //get vote within a group
 router.get("/group/:groupid", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
-  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
   if (!token) {
     return res
       .status(403)
@@ -52,6 +51,42 @@ router.get("/user/:userid", async (req, res) => {
   }
   try {
     const getVotes = await Vote.findAll({ where: { UserId: tokenData.id } });
+    res.json(getVotes);
+  } catch (err) {
+    console.log(err);
+    return res.json(err);
+  }
+});
+
+//get vote under a user in a group
+router.get("/:groupid/:userid", async (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to edit a play!" });
+  }
+  try {
+    const getVotes = await Vote.findAll({ where: { UserId: tokenData.id, GroupId:req.params.groupid } });
+    res.json(getVotes);
+  } catch (err) {
+    console.log(err);
+    return res.json(err);
+  }
+});
+
+//count vote of a game under a user in a group
+router.get("/:groupid/:userid/:gameid", async (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to edit a play!" });
+  }
+  try {
+    const getVotes = await Vote.findAndCountAll({ where: { UserId: tokenData.id, GroupId:req.params.groupid, GameId:req.params.gameid } });
     res.json(getVotes);
   } catch (err) {
     console.log(err);
