@@ -33,6 +33,23 @@ const groups = [
   {
     name: "1st jolly group",
     OwnerId: 1,
+    Users: [
+      {
+        email: "lily@lily.gmail",
+        password: "password",
+        username: "password",
+      },
+      {
+        email: "amy@amy.gmail",
+        password: "password",
+        username: "amy",
+      },
+      {
+        email: "jody@jody.gmail",
+        password: "password",
+        username: "jody",
+      },
+    ]
   },
   {
     name: "2nd best group",
