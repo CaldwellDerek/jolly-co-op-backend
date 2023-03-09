@@ -18,6 +18,9 @@ Game.init({
     },
     genres:{
         type:DataTypes.STRING,
+    },
+    imgURL:{
+        type:DataTypes.TEXT
     }
 },{
     sequelize
