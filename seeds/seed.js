@@ -33,23 +33,7 @@ const groups = [
   {
     name: "1st jolly group",
     OwnerId: 1,
-    Users: [
-      {
-        email: "lily@lily.gmail",
-        password: "password",
-        username: "password",
-      },
-      {
-        email: "amy@amy.gmail",
-        password: "password",
-        username: "amy",
-      },
-      {
-        email: "jody@jody.gmail",
-        password: "password",
-        username: "jody",
-      },
-    ]
+    
   },
   {
     name: "2nd best group",
@@ -67,14 +51,14 @@ const games = [
     platforms: "Nitendo PC Playstation",
     rating:4,
     genres:"action",
-    imgURL: "http://placekitten.com/200/300"
+    imgURL: " https://place-puppy.com/300x300"
   },
   {
     name: "Sims4",
     platforms: "PC Playstation",
     rating:4,
     genres:"family",
-    imgURL: "http://placekitten.com/200/300"
+    imgURL: "http://plhttps://media.rawg.io/media/games/71d/71df9e759b2246f9769126c98ac997fc.jpgacekitten.com/200/300"
   },
   {
     name: "League of the Legend",
