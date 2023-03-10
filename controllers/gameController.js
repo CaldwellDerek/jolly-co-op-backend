@@ -107,31 +107,30 @@ router.delete("/:id", (req, res) => {
   }
   try {
     const tokenData = jwt.verify(token, process.env.JWT_SECRET);
-    Game.findByPk(req.params.id)
+    Game.findByPk(req.params.id, {
+      include: [User]
+    })
       .then((foundGame) => {
         if (!foundGame) {
           return res.status(404).json({ msg: "no such play!" });
         }
-        if (foundGame.UserId !== tokenData.id) {
-          return res
-            .status(403)
-            .json({ msg: "you can only delete games you created!" });
+        for (let user of foundGame.Users){
+          if (user.id === tokenData.id){
+            Usergame.destroy({
+              where: {
+                UserId: user.id,
+                GameId: req.params.id
+              }
+            }).then(delGame => {
+              res.json(delGame);
+            }).catch(err => {
+              res.status(500).json({
+                msg: "womp womp womp",
+                err
+              })
+            })
+          }
         }
-        Game.destroy({
-          where: {
-            id: req.params.id,
-          },
-        })
-          .then((delGame) => {
-            res.json(delGame);
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(500).json({
-              msg: "womp womp womp",
-              err,
-            });
-          });
       })
       .catch((err) => {
         console.log(err);
