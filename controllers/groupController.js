@@ -66,8 +66,7 @@ router.post("/", async (req, res) => {
       { include: [User, Game] }
     );
     //todo:Assuming the req.body:  bodyOBJ = {userid, userid, userid}
-    const groupOwner = await User.findByPk(tokenData.id);
-    const usersArray = await JSON.parse(req.body.users);
+    const usersArray = JSON.parse(req.body.users);
     // const usersFound = usersArray.map(async(user)=>{
     //   const workingObj = await User.findByPk(user);
     //   return workingObj
@@ -99,7 +98,7 @@ router.put("/:groupId", async (req, res) => {
       .status(403)
       .json({ msg: "You are not the owner of this group" });}
   try {
-      const usersArray = await JSON.parse(req.body.users);
+      const usersArray = await req.body.users;
       // const usersFound = usersArray.map(async(user)=>{
       //   const workingObj = await User.findByPk(user);
       //   return workingObj
@@ -112,6 +111,38 @@ router.put("/:groupId", async (req, res) => {
     return res.status(403).json({ msg: "invalid token" });
   }
 });
+
+// delete one group from a user's group list
+router.delete("/leave/:groupid", async(req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to delete a play!" });
+  }
+  try {
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+    const foundGroup= await Group.findByPk(req.params.groupid)
+    const foundUser = await User.findByPk(tokenData.id)
+        if (!foundGroup) {
+          return res.status(404).json({ msg: "no such group!" });
+        }
+        if(foundGroup.OwnerId === tokenData.id){
+          const delGroup =  Group.destroy({
+            where: {
+              id: req.params.groupid
+            },
+          }) 
+          res.status(200).json({msg:"You have delete the group "});
+        }else{
+          const delGroup =  foundGroup.removeUser(foundUser) 
+          res.status(200).json({msg:"You have leave the group "});
+        }
+  } catch (err) {
+    return res.status(403).json({ msg: "invalid token" });
+  }
+});
+
 
 // delete one group PROTECTED
 router.delete("/:groupid", async(req, res) => {

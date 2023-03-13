@@ -6,16 +6,19 @@ const { callbackPromise } = require('nodemailer/lib/shared');
 
 router.post('/',(req,res)=>{
     const output = `
-    Dear ${req.body.customer_name}
+    <h3>Dear ${req.body.recipient}</h3>
+    <br></br>
 
-    You have a reservation with ${req.body.restaurant} on ${req.body.date} at ${req.body.time}. Party size is ${req.body.party_size}.
-    
-    We are looking forward to seeing you and your party group.
-    
-    ${req.body.restaurant}
-    Save your seat.app
+    Your friend ${req.body.sender} from ${req.body.groupname} is rally for his games. Join your friend and vote for the games you want to play.
+    <br></br>
+    From ${req.body.sender}: 
+    <br></br>
+    " ${req.body.text} "
+    <br></br>
+    ${req.body.groupname}
+    <br></br>
+    <h3>JOLLY-COOP</h3>
     `
-    
     const transporter = nodemailer.createTransport({
         host:"smtp.office365.com",
         port:587,
@@ -31,10 +34,9 @@ router.post('/',(req,res)=>{
     
     const options = {
         from:"saveyourseat@outlook.com",
-        //TODO:change into user email: req.body.email
         to:req.body.email,
-        subject:"Reservation Info",
-        text:output
+        subject:"Rally from Jolly",
+        html:output
     };
     transporter.sendMail(options,  function(err,info){
         if(err){
@@ -42,7 +44,7 @@ router.post('/',(req,res)=>{
             return
         }
         console.log(info.response)
-        res.render('userview2-2',{msg:"Email has been sent.Please check your email."})
+        res.json({msg:"Email has been sent.Please check your email."})
         })
 })
 

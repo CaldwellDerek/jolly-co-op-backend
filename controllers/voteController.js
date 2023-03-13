@@ -61,7 +61,6 @@ router.get("/user/:userid", async (req, res) => {
 //get vote of a game in a group
 router.get("/game/:gameid/group/:groupid", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
-  console.log("TOKEN: "+token)
   // const tokenData = jwt.verify(token, process.env.JWT_SECRET);
   if (!token) {
     return res
@@ -82,13 +81,14 @@ router.get("/game/:gameid/group/:groupid", async (req, res) => {
 //get vote under a user in a group
 router.get("/group/:groupid/user/:userid", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
-  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+
   if (!token) {
     return res
       .status(403)
       .json({ msg: "you must be logged in to edit a play!" });
   }
   try {
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
     const getVotes = await Vote.findAndCountAll({
       where: { UserId: tokenData.id, GroupId: req.params.groupid },
     });
@@ -102,13 +102,13 @@ router.get("/group/:groupid/user/:userid", async (req, res) => {
 //count vote of a game under a user in a group
 router.get("/:groupid/:userid/:gameid", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
-  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
   if (!token) {
     return res
       .status(403)
       .json({ msg: "you must be logged in to edit a play!" });
   }
   try {
+        const tokenData = jwt.verify(token, process.env.JWT_SECRET);
     const getVotes = await Vote.findAndCountAll({
       where: {
         UserId: tokenData.id,
@@ -126,7 +126,6 @@ router.get("/:groupid/:userid/:gameid", async (req, res) => {
 //create a vote
 router.put("/group/:groupid", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
-  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
   if (!token) {
     return res
       .status(403)
@@ -134,6 +133,7 @@ router.put("/group/:groupid", async (req, res) => {
   }
   try {
     //check if the user has vote in this group
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
     const usersVote =await Vote.findAll({
       where: { UserId: tokenData.id, GameId:req.body.GameId, GroupId: req.params.groupid },
     });
