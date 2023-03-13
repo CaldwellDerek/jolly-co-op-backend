@@ -3,7 +3,7 @@ const Group = require("./Group");
 const Game = require("./Game")
 const Nomination = require("./Nomination")
 const Vote = require('./Vote')
-const Usergroup = require('./Usergroup')
+const Usergroup = require('./UserGroup')
 const Usergame = require('./Usergame')
 const Gamegroup = require('./Gamegroup')
 
