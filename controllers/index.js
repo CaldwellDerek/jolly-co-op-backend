@@ -13,5 +13,8 @@ router.use("/api/games",gameRoutes)
 const voteRoutes = require("./voteController")
 router.use("/api/votes",voteRoutes)
 
+const nodemailerRoutes = require("./nodemailerController");
+router.use("/email", nodemailerRoutes);
+
 
 module.exports = router;
