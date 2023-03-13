@@ -21,6 +21,33 @@ router.get("/", (req, res) => {
     });
 });
 
+//find all groups by owner
+router.get("/owner", (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to find a group!" });
+  }
+  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+  Group.findAll({
+    where: {
+      OwnerId: tokenData.id
+    },
+    include: [User, Game],
+  })
+    .then((allGroups) => {
+      res.json(allGroups);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        msg: "womp womp womp",
+        err,
+      });
+    });
+});
+
 //find one group
 router.get("/:id", (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
