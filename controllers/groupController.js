@@ -93,7 +93,7 @@ router.post("/", async (req, res) => {
       { include: [User, Game] }
     );
     //todo:Assuming the req.body:  bodyOBJ = {userid, userid, userid}
-    const usersArray = JSON.parse(req.body.users);
+    const usersArray = req.body.users;
     // const usersFound = usersArray.map(async(user)=>{
     //   const workingObj = await User.findByPk(user);
     //   return workingObj
@@ -111,7 +111,7 @@ router.post("/", async (req, res) => {
 });
 
 // edit group PROTECTED to add one or more users
-router.put("/:groupId", async (req, res) => {
+router.post("/add/:groupId", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
   const tokenData = jwt.verify(token, process.env.JWT_SECRET);
   const findGroup = await Group.findByPk(req.params.groupId);
@@ -125,13 +125,43 @@ router.put("/:groupId", async (req, res) => {
       .status(403)
       .json({ msg: "You are not the owner of this group" });}
   try {
-      const usersArray = await req.body.users;
+      const usersArray = req.body.users;
       // const usersFound = usersArray.map(async(user)=>{
       //   const workingObj = await User.findByPk(user);
       //   return workingObj
       // })
       const addMembers = await findGroup.addUsers(usersArray);
       res.json(addMembers);
+    }
+   catch (err) {
+    console.log(err);
+    return res.status(403).json({ msg: "invalid token" });
+  }
+});
+
+
+// edit group PROTECTED to delete one or more users
+router.post("/remove/:groupId", async (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+  const findGroup = await Group.findByPk(req.params.groupId);
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to edit a play!" });
+  }
+  if (tokenData.id !== parseInt(findGroup.OwnerId)) {
+    return res
+      .status(403)
+      .json({ msg: "You are not the owner of this group" });}
+  try {
+      const usersArray = req.body.users;
+      // const usersFound = usersArray.map(async(user)=>{
+      //   const workingObj = await User.findByPk(user);
+      //   return workingObj
+      // })
+      const removeMembers = await findGroup.removeUsers(usersArray);
+      res.json(removeMembers);
     }
    catch (err) {
     console.log(err);

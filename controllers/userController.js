@@ -82,7 +82,8 @@ router.get("/isValidToken", (req, res) => {
     const tokenData = jwt.verify(token,process.env.JWT_SECRET);
     res.json({
       isValid: true,
-      user: tokenData,
+      user: tokenData
+
     });
   } catch (err) {
     res.status(403).json({
