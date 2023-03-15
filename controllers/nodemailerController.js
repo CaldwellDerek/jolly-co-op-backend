@@ -4,6 +4,7 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 const { callbackPromise } = require('nodemailer/lib/shared');
 
+
 router.post('/',(req,res)=>{
     const output = `
     <h3>Dear ${req.body.recipient}</h3>
@@ -15,9 +16,11 @@ router.post('/',(req,res)=>{
     <br></br>
     " ${req.body.text} "
     <br></br>
-    ${req.body.groupname}
+    Group: ${req.body.groupname}
     <br></br>
     <h3>JOLLY-COOP</h3>
+
+    <img src="https://ik.imagekit.io/rt5o187rd/Screen_Shot_2023-03-15_at_11.29.41_AM.png?updatedAt=1678905231913">
     `
     const transporter = nodemailer.createTransport({
         host:"smtp.office365.com",
