@@ -21,6 +21,33 @@ router.get("/", (req, res) => {
     });
 });
 
+//find all groups by owner
+router.get("/owner", (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to find a group!" });
+  }
+  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+  Group.findAll({
+    where: {
+      OwnerId: tokenData.id
+    },
+    include: [User, Game],
+  })
+    .then((allGroups) => {
+      res.json(allGroups);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        msg: "womp womp womp",
+        err,
+      });
+    });
+});
+
 //find one group
 router.get("/:id", (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
@@ -66,8 +93,7 @@ router.post("/", async (req, res) => {
       { include: [User, Game] }
     );
     //todo:Assuming the req.body:  bodyOBJ = {userid, userid, userid}
-    const groupOwner = await User.findByPk(tokenData.id);
-    const usersArray = await JSON.parse(req.body.users);
+    const usersArray = req.body.users;
     // const usersFound = usersArray.map(async(user)=>{
     //   const workingObj = await User.findByPk(user);
     //   return workingObj
@@ -85,7 +111,7 @@ router.post("/", async (req, res) => {
 });
 
 // edit group PROTECTED to add one or more users
-router.put("/:groupId", async (req, res) => {
+router.post("/add/:groupId", async (req, res) => {
   const token = req.headers?.authorization?.split(" ")[1];
   const tokenData = jwt.verify(token, process.env.JWT_SECRET);
   const findGroup = await Group.findByPk(req.params.groupId);
@@ -99,7 +125,7 @@ router.put("/:groupId", async (req, res) => {
       .status(403)
       .json({ msg: "You are not the owner of this group" });}
   try {
-      const usersArray = await JSON.parse(req.body.users);
+      const usersArray = req.body.users;
       // const usersFound = usersArray.map(async(user)=>{
       //   const workingObj = await User.findByPk(user);
       //   return workingObj
@@ -112,6 +138,95 @@ router.put("/:groupId", async (req, res) => {
     return res.status(403).json({ msg: "invalid token" });
   }
 });
+
+
+// edit group PROTECTED to delete one or more users
+router.post("/remove/:groupId", async (req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+  const findGroup = await Group.findByPk(req.params.groupId);
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to edit a play!" });
+  }
+  if (tokenData.id !== parseInt(findGroup.OwnerId)) {
+    return res
+      .status(403)
+      .json({ msg: "You are not the owner of this group" });}
+  try {
+      const usersArray = req.body.users;
+      // const usersFound = usersArray.map(async(user)=>{
+      //   const workingObj = await User.findByPk(user);
+      //   return workingObj
+      // })
+      const removeMembers = await findGroup.removeUsers(usersArray);
+      res.json(removeMembers);
+    }
+   catch (err) {
+    console.log(err);
+    return res.status(403).json({ msg: "invalid token" });
+  }
+});
+
+// delete one group from a user's group list
+router.delete("/leave/:groupid", async(req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to delete a play!" });
+  }
+  try {
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+    const foundGroup= await Group.findByPk(req.params.groupid)
+    const foundUser = await User.findByPk(tokenData.id)
+        if (!foundGroup) {
+          return res.status(404).json({ msg: "no such group!" });
+        }
+        if(foundGroup.OwnerId === tokenData.id){
+          const delGroup =  Group.destroy({
+            where: {
+              id: req.params.groupid
+            },
+          }) 
+          res.status(200).json({msg:"You have delete the group "});
+        }else{
+          const delGroup =  foundGroup.removeUser(foundUser) 
+          res.status(200).json(delGroup).json({msg:"You have leave the group "});
+        }
+  } catch (err) {
+    return res.status(403).json({ msg: "invalid token" });
+  }
+});
+
+//delete a game from a group
+router.delete("/delete/:groupid/:gameid", async(req, res) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) {
+    return res
+      .status(403)
+      .json({ msg: "you must be logged in to delete a play!" });
+  }
+  try {
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
+    const foundGroup= await Group.findByPk(req.params.groupid)
+    const foundGame = await Game.findByPk(req.params.gameid)
+        if (!foundGroup) {
+          return res.status(404).json({ msg: "no such group!" });
+        }
+        if(foundGroup.OwnerId !== tokenData.id){
+          res.status(403).json({msg:"You are not the group owner! "});
+          }else{
+          const delGame =  foundGroup.removeGame(foundGame) 
+          res.status(200).json({msg:"You have delete the game! "});
+        }
+  } catch (err) {
+    return res.status(403).json({ msg: "invalid token" });
+  }
+});
+
+
 
 // delete one group PROTECTED
 router.delete("/:groupid", async(req, res) => {

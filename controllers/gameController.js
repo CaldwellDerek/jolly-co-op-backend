@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 //find all games
 router.get("/", (req, res) => {
   Game.findAll({
-    include: [User, Group],
+    include: [User, Group, Vote],
   })
     .then((allGames) => {
       res.json(allGames);
@@ -38,7 +38,6 @@ router.get("/:id", (req, res) => {
       res.json({ msg: "oh no", err });
     });
 });
-
 
 // add/create a Game into user's list
 router.put("/", async (req, res) => {
