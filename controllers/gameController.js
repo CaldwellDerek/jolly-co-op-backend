@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { User, Group, Game, Vote } = require("../models");
+const { User, Group, Game, Vote, Usergame } = require("../models");
 const jwt = require("jsonwebtoken");
 
 //find all games
